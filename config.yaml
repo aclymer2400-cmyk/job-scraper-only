@@ -4,11 +4,13 @@ title_keywords:
   - "pipeline"
   - "compressor"
   - "safety"
+  - "industrial"
+  - :account manager"
 exclude:
   - "intern"
   - "senior director"
 
-salary_floor: 80000
+salary_floor: 90000
 
 sources:
   greenhouse:
@@ -23,7 +25,7 @@ sources:
   ziprecruiter:
     enabled: true
     api_key: "YOUR_ZIPRECRUITER_API_KEY"
-    query: "pipeline OR gas OR safety OR compliance"
+    query: "pipeline OR gas OR safety OR compliance OR industrial OR account manager
     location: "Pennsylvania"
     radius_miles: 75
     days_age: 14
