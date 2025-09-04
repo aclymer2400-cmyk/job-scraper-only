@@ -16,7 +16,7 @@ exclude:
   - "intern"
   - "senior director"
 
-salary_floor: 80000
+salary_floor: 95000
 
 sources:
   greenhouse:
