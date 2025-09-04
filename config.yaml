@@ -1,0 +1,47 @@
+poll_interval_minutes: 15
+
+location_filters:
+  - "Pennsylvania"
+  - "Remote"
+
+title_keywords:
+  include:
+    - "gas"
+    - "pipeline"
+    - "safety"
+    - "operations"
+    - "regulatory"
+    - "compliance"
+    - "control room"
+    - "dispatcher"
+    - "scheduler"
+    - "asset integrity"
+  exclude:
+    - "intern"
+    - "senior director"
+
+salary_floor: 80000
+
+sources:
+  greenhouse:
+    companies: []   # e.g., ["acmeinc","widgetco"]
+  lever:
+    companies: []   # e.g., ["acmeinc"]
+  usajobs:
+    enabled: false
+    api_key: "YOUR_USAJOBS_API_KEY"
+    query: "pipeline OR gas OR safety OR compliance"
+    location: "Pennsylvania"
+
+alerts:
+  email:
+    enabled: false
+    smtp_host: "smtp.example.com"
+    smtp_port: 587
+    smtp_user: "you@example.com"
+    smtp_pass: "app_password_here"
+    to: "you@example.com"
+  pushover:
+    enabled: true
+    user_key: "YOUR_USER_KEY"
+    api_token: "YOUR_APP_TOKEN"
