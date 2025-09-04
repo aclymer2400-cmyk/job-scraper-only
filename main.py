@@ -7,14 +7,25 @@ from scrapers.usajobs import fetch_usajobs
 from scrapers.ziprecruiter import fetch_ziprecruiter
 
 def store_job(cur, source, job):
-    sql = "INSERT OR IGNORE INTO jobs (source, job_id, title, company, url, posted_at, raw) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    """
+    Insert a job if we haven't seen it. Matches schema:
+    id, source, job_id, title, company, location, url, posted_at, salary, raw, seen_at
+    """
+    sql = """
+    INSERT OR IGNORE INTO jobs
+      (source, job_id, title, company, location, url, posted_at, salary, raw)
+    VALUES
+      (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
     cur.execute(sql, (
         source,
-        job["id"],
-        job["title"],
-        job["company"],
-        job["url"],
-        job["posted_at"],
+        job.get("id"),
+        job.get("title"),
+        job.get("company"),
+        job.get("location"),
+        job.get("url"),
+        job.get("posted_at"),
+        job.get("salary"),
         json.dumps(job),
     ))
     return cur.rowcount == 1
@@ -54,9 +65,15 @@ def scrape_once(cfg, conn):
                 new_hits.append(job_n)
 
     conn.commit()
-    matched = [j for j in new_hits if score_job(j, cfg.get("title_keywords", []))]
+
+    matched = [
+        j for j in new_hits
+        if score_job(j, cfg.get("title_keywords", []), cfg.get("exclude", []))
+    ]
+
     if matched:
         send_alerts(matched, cfg.get("alerts", {}))
+
     print(f"Scrape done. New: {len(new_hits)} | Matched filters: {len(matched)}")
 
 def main():
