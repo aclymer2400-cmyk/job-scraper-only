@@ -3,21 +3,33 @@ on:
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
+
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - run: pip install -r ./Requirements.txt
-      - run: python - << 'PY'
+          python-version: "3.12"
+
+      # install deps (your repo file is capital-R Requirements.txt)
+      - name: Install requirements
+        run: pip install -r ./Requirements.txt
+
+      # prepare sqlite DB
+      - name: Prep DB
+        run: |
+          python - <<'EOF'
           import sqlite3, os, pathlib
           os.makedirs("data", exist_ok=True)
           sql = pathlib.Path("data/schema.sql").read_text()
           conn = sqlite3.connect("data/jobs.sqlite3")
           conn.executescript(sql)
           print("DB ready.")
-          PY
-      - run: python main.py scrape
+          EOF
+
+      # run one scrape pass
+      - name: Run scraper
+        run: python main.py scrape
