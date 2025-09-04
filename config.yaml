@@ -1,22 +1,24 @@
 interval_minutes: 15
+
 title_keywords:
   - "operator"
   - "pipeline"
   - "compressor"
   - "safety"
   - "industrial"
-  - :account manager"
+  - "account manager"
+
 exclude:
   - "intern"
   - "senior director"
 
-salary_floor: 90000
+salary_floor: 80000
 
 sources:
   greenhouse:
-    companies: ["stripe", "datadog"]   # example
+    companies: ["stripe", "datadog"]
   lever:
-    companies: ["robinhood"]           # example
+    companies: ["robinhood"]
   usajobs:
     enabled: false
     api_key: "YOUR_USAJOBS_API_KEY"
@@ -25,10 +27,10 @@ sources:
   ziprecruiter:
     enabled: true
     api_key: "YOUR_ZIPRECRUITER_API_KEY"
-    query: "pipeline OR gas OR safety OR compliance OR industrial OR account manager
+    query: "pipeline OR gas OR safety OR compliance OR industrial OR operator"
     location: "Pennsylvania"
     radius_miles: 75
-    days_age: 14
+    days_ago: 14
     per_page: 25
 
 alerts:
@@ -39,6 +41,7 @@ alerts:
     smtp_user: "you@example.com"
     smtp_pass: "app_password_here"
     to: "you@example.com"
+
   pushover:
     enabled: true
     user_key: "YOUR_USER_KEY"
