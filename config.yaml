@@ -2,6 +2,7 @@ poll_interval_minutes: 15
 
 location_filters:
   - "Pennsylvania"
+  - "West Virginia"
   - "Remote"
 
 title_keywords:
@@ -20,7 +21,7 @@ title_keywords:
     - "intern"
     - "senior director"
 
-salary_floor: 80000
+salary_floor: 90000
 
 sources:
   greenhouse:
