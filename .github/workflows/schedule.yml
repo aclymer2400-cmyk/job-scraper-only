@@ -1,0 +1,23 @@
+name: job-scrape
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python - << 'PY'
+          import sqlite3, os, pathlib
+          os.makedirs("data", exist_ok=True)
+          sql = pathlib.Path("data/schema.sql").read_text()
+          conn = sqlite3.connect("data/jobs.sqlite3")
+          conn.executescript(sql)
+          print("DB ready.")
+          PY
+      - run: python main.py scrape
