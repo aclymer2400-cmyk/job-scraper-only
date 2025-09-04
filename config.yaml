@@ -16,11 +16,11 @@ salary_floor: 80000
 
 sources:
   greenhouse:
-    companies: ["stripe", "datadog"]
+    companies: ["columbia gas"]
   lever:
     companies: ["robinhood"]
   usajobs:
-    enabled: false
+    enabled: true
     api_key: "YOUR_USAJOBS_API_KEY"
     query: "pipeline OR gas OR safety OR compliance"
     location: "Pennsylvania"
