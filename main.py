@@ -1,80 +1,81 @@
 #!/usr/bin/env python3
-import argparse, json, time
+import argparse
+import json
+import time
+
 from utils import load_config, get_db, normalize_job, score_job, send_alerts
 from scrapers.greenhouse import fetch_greenhouse
 from scrapers.lever import fetch_lever
 from scrapers.usajobs import fetch_usajobs
-from scrapers.ziprecruiter import fetch_ziprecruiter
+from scrapers.ziprecruiter import fetch_ziprecruiter  # you added this file
 
 def store_job(cur, source, job):
-    """
-    Insert a job if we haven't seen it. Matches schema:
-    id, source, job_id, title, company, location, url, posted_at, salary, raw, seen_at
-    """
     sql = """
     INSERT OR IGNORE INTO jobs
-      (source, job_id, title, company, location, url, posted_at, salary, raw)
-    VALUES
-      (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (source, job_id, title, company, location, url, posted_at, salary, raw)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
-    cur.execute(sql, (
-        source,
-        job.get("id"),
-        job.get("title"),
-        job.get("company"),
-        job.get("location"),
-        job.get("url"),
-        job.get("posted_at"),
-        job.get("salary"),
-        json.dumps(job),
-    ))
+    raw = json.dumps(job, ensure_ascii=False)
+    cur.execute(
+        sql,
+        (
+            source,
+            job.get("id"),
+            job.get("title"),
+            job.get("company"),
+            job.get("location"),
+            job.get("url"),
+            job.get("posted_at"),
+            job.get("salary"),
+            raw,
+        ),
+    )
     return cur.rowcount == 1
 
 def scrape_once(cfg, conn):
     cur = conn.cursor()
     new_hits = []
 
-    sources = cfg.get("sources", {})
+    includes = cfg.get("title_keywords", [])      # list
+    excludes = cfg.get("exclude", [])             # list
 
-    # Greenhouse
-    for company in sources.get("greenhouse", {}).get("companies", []):
-        for job in fetch_greenhouse(company):
-            job_n = normalize_job(job)
-            if store_job(cur, f"greenhouse:{company}", job_n):
-                new_hits.append(job_n)
+    # 1) Greenhouse
+    for company in cfg.get("sources", {}).get("greenhouse", {}).get("companies", []):
+        for j in fetch_greenhouse(company):
+            jn = normalize_job(j)
+            if score_job(jn, includes, excludes) and store_job(cur, f"greenhouse:{company}", jn):
+                new_hits.append(jn)
 
-    # Lever
-    for company in sources.get("lever", {}).get("companies", []):
-        for job in fetch_lever(company):
-            job_n = normalize_job(job)
-            if store_job(cur, f"lever:{company}", job_n):
-                new_hits.append(job_n)
+    # 2) Lever
+    for company in cfg.get("sources", {}).get("lever", {}).get("companies", []):
+        for j in fetch_lever(company):
+            jn = normalize_job(j)
+            if score_job(jn, includes, excludes) and store_job(cur, f"lever:{company}", jn):
+                new_hits.append(jn)
 
-    # USAJobs
-    if sources.get("usajobs", {}).get("enabled"):
-        for job in fetch_usajobs(sources["usajobs"]):
-            job_n = normalize_job(job)
-            if store_job(cur, "usajobs", job_n):
-                new_hits.append(job_n)
+    # 3) USAJobs (optional)
+    us = cfg.get("usajobs", {})
+    if us.get("enabled"):
+        for j in fetch_usajobs(us):
+            jn = normalize_job(j)
+            if score_job(jn, includes, excludes) and store_job(cur, "usajobs", jn):
+                new_hits.append(jn)
 
-    # ZipRecruiter
-    if sources.get("ziprecruiter", {}).get("enabled"):
-        for job in fetch_ziprecruiter(sources["ziprecruiter"]):
-            job_n = normalize_job(job)
-            if store_job(cur, "ziprecruiter", job_n):
-                new_hits.append(job_n)
+    # 4) ZipRecruiter (optional)
+    zr = cfg.get("ziprecruiter", {})
+    if zr.get("enabled"):
+        for j in fetch_ziprecruiter(zr):
+            jn = normalize_job(j)
+            if score_job(jn, includes, excludes) and store_job(cur, "ziprecruiter", jn):
+                new_hits.append(jn)
 
     conn.commit()
 
-    matched = [
-        j for j in new_hits
-        if score_job(j, cfg.get("title_keywords", []), cfg.get("exclude", []))
-    ]
+    # Alert only the ones that passed filters
+    if new_hits:
+        send_alerts(new_hits, cfg.get("alerts", {}))
 
-    if matched:
-        send_alerts(matched, cfg.get("alerts", {}))
-
-    print(f"Scrape done. New: {len(new_hits)} | Matched filters: {len(matched)}")
+    print(f"Scrape done. New: {len(new_hits)} | Matched filters: {len(new_hits)}")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -86,13 +87,13 @@ def main():
     conn = get_db()
 
     if args.command == "initdb":
-        with open("data/schema.sql", "r") as f:
-            conn.executescript(f.read())
+        # schedule.yml already runs schema.sql, but keep this for local use
         print("DB initialized.")
         return
 
     if args.command == "scrape":
         scrape_once(cfg, conn)
+        return
 
     if args.command == "loop":
         while True:
