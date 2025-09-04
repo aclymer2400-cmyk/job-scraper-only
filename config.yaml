@@ -1,38 +1,33 @@
-poll_interval_minutes: 15
-
-location_filters:
-  - "Pennsylvania"
-  - "West Virginia"
-  - "Remote"
-
+interval_minutes: 15
 title_keywords:
-  include:
-    - "gas"
-    - "pipeline"
-    - "safety"
-    - "operations"
-    - "regulatory"
-    - "compliance"
-    - "control room"
-    - "dispatcher"
-    - "scheduler"
-    - "asset integrity"
-  exclude:
-    - "intern"
-    - "senior director"
+  - "operator"
+  - "pipeline"
+  - "compressor"
+  - "safety"
+exclude:
+  - "intern"
+  - "senior director"
 
-salary_floor: 90000
+salary_floor: 80000
 
 sources:
   greenhouse:
-    companies: []   # e.g., ["acmeinc","widgetco"]
+    companies: ["stripe", "datadog"]   # example
   lever:
-    companies: []   # e.g., ["acmeinc"]
+    companies: ["robinhood"]           # example
   usajobs:
     enabled: false
     api_key: "YOUR_USAJOBS_API_KEY"
     query: "pipeline OR gas OR safety OR compliance"
     location: "Pennsylvania"
+  ziprecruiter:
+    enabled: true
+    api_key: "YOUR_ZIPRECRUITER_API_KEY"
+    query: "pipeline OR gas OR safety OR compliance"
+    location: "Pennsylvania"
+    radius_miles: 75
+    days_age: 14
+    per_page: 25
 
 alerts:
   email:
@@ -46,4 +41,3 @@ alerts:
     enabled: true
     user_key: "YOUR_USER_KEY"
     api_token: "YOUR_APP_TOKEN"
-# trigger workflow
