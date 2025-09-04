@@ -45,3 +45,4 @@ alerts:
     enabled: true
     user_key: "YOUR_USER_KEY"
     api_token: "YOUR_APP_TOKEN"
+# trigger workflow
