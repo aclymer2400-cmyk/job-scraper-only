@@ -6,7 +6,11 @@ title_keywords:
   - "compressor"
   - "safety"
   - "industrial"
-  - "account manager"
+  - "sales"
+  - "valve"
+  - "regulator"
+  - "gas"
+  - "oil"
 
 exclude:
   - "intern"
@@ -16,21 +20,37 @@ salary_floor: 80000
 
 sources:
   greenhouse:
-    companies: ["columbia gas"]
+    companies:
+      - "berkshirehathawayenergy"
+      - "cheniere"
+      - "exxonmobil"
+      - "shell"
+      - "chevron"
+      - "enbridge"
+      - "siemens"
+      - "emerson"
+      - "flowserve"
+
   lever:
-    companies: ["robinhood"]
+    companies:
+      - "airbnb"
+      - "doordash"
+      - "bakerhughes"
+      - "honeywell"
+
   usajobs:
     enabled: true
     api_key: "YOUR_USAJOBS_API_KEY"
-    query: "pipeline OR gas OR safety OR compliance"
+    query: "pipeline OR compressor OR valve OR regulator OR gas OR oil OR industrial safety"
     location: "Pennsylvania"
+
   ziprecruiter:
     enabled: true
     api_key: "YOUR_ZIPRECRUITER_API_KEY"
-    query: "pipeline OR gas OR safety OR compliance OR industrial OR operator"
+    query: "pipeline OR compressor OR valve OR regulator OR gas supply OR oil supply OR industrial sales OR energy safety"
     location: "Pennsylvania"
     radius_miles: 75
-    days_ago: 14
+    days_age: 14
     per_page: 25
 
 alerts:
